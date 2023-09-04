@@ -1,0 +1,26 @@
+{
+  "name": "hx-ext-tpl",
+  "version": "0.1.0",
+  "description": "An htmx extension that allows to select and swap existing elements.",
+  "main": "dist/hx-ext-tpl.min.js",
+  "scripts": {
+    "dist": "cp -r src/* dist/ && npm run-script ugly",
+    "ugly": "uglifyjs -m eval -o dist/hx-ext-tpl.min.js dist/hx-ext-tpl.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oriol-martinez/htmx-hx-ext-tpl.git"
+  },
+  "keywords": [
+    "htmx"
+  ],
+  "author": "Oriol Martínez",
+  "license": "BSD 2-Clause",
+  "bugs": {
+    "url": "https://github.com/oriol-martinez/htmx-hx-ext-tpl/issues"
+  },
+  "homepage": "https://github.com/oriol-martinez/htmx-hx-ext-tpl#readme",
+  "devDependencies": {
+    "uglify-js": "^3.17.4"
+  }
+}
