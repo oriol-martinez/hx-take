@@ -1,6 +1,6 @@
 {
   "name": "hx-ext-tpl",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "An htmx extension that allows to select and swap existing elements.",
   "main": "dist/hx-ext-tpl.min.js",
   "scripts": {
@@ -22,5 +22,8 @@
   "homepage": "https://github.com/oriol-martinez/htmx-hx-ext-tpl#readme",
   "devDependencies": {
     "uglify-js": "^3.17.4"
+  },
+  "dependencies": {
+    "hx-ext-tpl": "^0.1.0"
   }
 }
