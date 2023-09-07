@@ -24,6 +24,6 @@
     "uglify-js": "^3.17.4"
   },
   "dependencies": {
-    "hx-ext-tpl": "^0.1.0"
+    "htmx.org": "^1.9.5"
   }
 }
