@@ -1,5 +1,5 @@
 # hx-ext="tpl"
-## Version 0.2.0
+## Version 0.2.1
 
 An **[htmx](https://htmx.org/essays/#memes)** ES5 extension that allows to select and swap existing elements on the DOM.
 
@@ -33,7 +33,7 @@ If **`hx-target`** is not specified it will target **itself**. Check the `hx-tar
 https://htmx.org/attributes/hx-target/
 
 If **`hx-swap`** is not specified it will swap the `innerHTML` of the `hx-tpl` element into the **`innerHTML` of the target**.
-Check the `hx-target` attribute in the htmx docs here: 
+Check the `hx-swap` attribute in the htmx docs here: 
 https://htmx.org/attributes/hx-swap/
 
 ### Swap styles
