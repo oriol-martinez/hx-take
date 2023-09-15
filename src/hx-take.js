@@ -320,13 +320,11 @@
     
                     if (target) {
                         target.classList.remove(htmx.config.swappingClass);
-                        console.log(target, self);
                         self.removeCustomSwapClasses(target, 'target', swapSpec.swapStyle);
                     }
 
                     if (source) {
                         source.classList.remove(htmx.config.swappingClass);
-                        console.log(source, self);
                         self.removeCustomSwapClasses(source, 'source', swapSpec.swapStyle);
                     }
     
