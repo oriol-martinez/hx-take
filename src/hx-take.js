@@ -57,12 +57,13 @@
         },
 
         updateScrollState: function(content, swapSpec) {
+            var hx = this.internalAPI;
             var first = content[0];
             var last = content[content.length - 1];
             if (swapSpec.scroll) {
                 var target = null;
                 if (swapSpec.scrollTarget) {
-                    target = querySelectorExt(first, swapSpec.scrollTarget);
+                    target = hx.querySelectorExt(first, swapSpec.scrollTarget);
                 }
                 if (swapSpec.scroll === "top" && (first || target)) {
                     target = target || first;
@@ -80,7 +81,7 @@
                     if (swapSpec.showTarget === "window") {
                         targetStr = "body";
                     }
-                    target = querySelectorExt(first, targetStr);
+                    target = hx.querySelectorExt(first, targetStr);
                 }
                 if (swapSpec.show === "top" && (first || target)) {
                     target = target || first;
