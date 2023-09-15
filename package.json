@@ -5,7 +5,7 @@
   "main": "dist/hx-ext-tpl.min.js",
   "scripts": {
     "dist": "cp -r src/* dist/ && npm run-script ugly",
-    "ugly": "uglifyjs -m eval -o dist/hx-ext-tpl.min.js dist/hx-ext-tpl.js"
+    "ugly": "uglifyjs -m eval -o dist/hx-take.min.js dist/hx-take.js"
   },
   "repository": {
     "type": "git",

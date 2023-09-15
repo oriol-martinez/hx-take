@@ -1,0 +1,249 @@
+<!doctype html>
+<html>
+<head>
+    <title>hx-take extension playground</title>
+    <script src="./node_modules/htmx.org/dist/htmx.js"></script>
+    <script src="./src/hx-take.js"></script>
+    <style>
+        body * {
+            border: 1px transparent solid;
+            border-radius: 5px;
+            font-family: sans-serif;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        #reset-container {
+            display: flex;
+        }
+
+        #reset {
+            margin: auto;
+            background-color: lightseagreen;
+            padding: 10px;
+            font-size: 1em;
+        }
+
+        #reset:hover {
+            background-color: black;
+            color: white;
+        }
+
+        #selects {
+            border-bottom: 1px gray solid;
+            padding: 5px;
+        }
+
+        #selects select {
+            border-bottom: 1px gray solid;
+            padding: 10px;
+        }
+
+        #take-btn-container {
+            text-align: center;
+            border-bottom: 1px gray solid;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        #take-btn-container button {
+            padding: 15px;
+            font-size: 1em;
+            font-weight: bold;
+        }
+
+        #container {
+            display: flex;
+        }
+
+        #container * {
+            border-color: black;
+            padding: 10px;
+        }
+
+        #container p {
+            border-color: white;
+        }
+
+        #left {
+            background-color: lightcoral;
+            flex: 1;
+            margin: 0 10px 0 10px;
+        }
+
+        #left-content {
+            background-color: indianred;
+        }
+
+        #center {
+            background-color: lightgreen;
+            flex: 1;
+            margin: 0 10px 0 10px;
+        }
+
+        #center-content {
+            background-color: green;
+        }
+
+        #right {
+            background-color: lightblue;
+            flex: 1;
+            margin: 0 10px 0 10px;
+        }
+
+        #right-content {
+            background-color: cornflowerblue;
+        }
+    </style>
+    <script>
+        // A sprinkle of JavaScript
+        window.addEventListener('load', (e) => {
+            let takeBtnCode = htmx.find('#btn-code');
+            document.querySelectorAll('select').forEach(function(sel) {
+                sel.addEventListener('change', function(e) {
+                    if (sel.value) {
+                        htmx.find('#take-btn').setAttribute(
+                            sel.getAttribute('name'),
+                            sel.value
+                        );
+                    } else {
+                        htmx.find('#take-btn').removeAttribute(
+                            sel.getAttribute('name')
+                        );
+                    }
+
+                    takeBtnCode.value = htmx.find('#take-btn').outerHTML;
+                });
+
+                sel.dispatchEvent(new Event('change'));
+            });
+        });
+    </script>
+</head>
+<body hx-ext="take">
+    <h1>hx-take playground</h1>
+    <div id="reset-container">
+        <button id="reset" hx-take="#playground" hx-target="#container">Reset content</button>
+    </div>
+    <div id="selects">
+        <div>
+            <label for="hx-take">Take this element (hx-take)</label>
+            <select id="hx-take-source" name="hx-take">
+                <option value="#left" selected>#left</option>
+                <option value="#left-content">#left-content</option>
+                <option value="#right" selected>#right</option>
+                <option value="#right-content">#right-content</option>
+                <option value="#right">#right</option>
+                <option value="#right-content">#right-content</option>
+                <option value="#tpl-a">#tpl-a</option>
+                <option value="#tpl-a-content">#tpl-a-content</option>
+                <option value="#tpl-b">#tpl-b</option>
+                <option value="#tpl-b-content">#tpl-b-content</option>
+            </select>
+        </div>
+        <div>
+            <label for="hx-select"><i style="padding: 0;">Optional:</i> Select from the taken element (hx-select)</label>
+            <select id="hx-take-select" name="hx-select">
+                <option value="" selected>Don't use select</option>
+                <option value="#left-content">#left-content</option>
+                <option value="#left-content p">#left-content paragraphs</option>
+                <option value="#center-content">#center-content</option>
+                <option value="#center-content p">#center-content paragraphs</option>
+                <option value="#right-content">#right-content</option>
+                <option value="#right-content p">#right-content paragraphs</option>
+                <option value="#tpl-a-content">#tpl-a-content</option>
+                <option value="#tpl-b-content">#tpl-b-content</option>
+            </select>
+        </div>
+        <div>
+            <label for="hx-target">Set this element as the target (hx-target)</label>
+            <select id="hx-take-target" name="hx-target">
+                <option value="#left" selected>#left</option>
+                <option value="#left-content">#left-content</option>
+                <option value="#right" selected>#right</option>
+                <option value="#right-content">#right-content</option>
+                <option value="#right">#right</option>
+                <option value="#right-content">#right-content</option>
+                <option value="#tpl-a">#tpl-a</option>
+                <option value="#tpl-a-content">#tpl-a-content</option>
+                <option value="#tpl-b">#tpl-b</option>
+                <option value="#tpl-b-content">#tpl-b-content</option>
+            </select>
+        </div>
+        <div>
+            <label for="hx-swap"><i style="padding: 0;">Optional:</i> Specify how the content will be swapped (hx-swap)</label>
+            <select id="hx-take-swap" name="hx-swap">
+                <option disabled>htmx swap styles:</option>
+                <option value="innerHTML" selected>innerHTML (by default): Replace the inner html of the target element</option>
+                <option value="outerHTML">outerHTML: Replace the entire target element with the taken element</option>
+                <option value="beforebegin">beforebegin: Insert the content before the target element</option>
+                <option value="afterbegin">afterbegin: Insert the content before the first child of the target element</option>
+                <option value="beforeend">beforeend: Insert the response after the last child of the target element</option>
+                <option value="afterend">afterend: Insert the content after the target element</option>
+                <option value="delete">delete: Deletes the target element regardless of the content</option>
+                <option value="none">none: Does not append content from response (out of band items will still be processed)</option>
+                <option disabled></option>
+                <option disabled>hx-take built-in swap aliases:</option>
+                <option value="move">move: Moves the content of the taken element to the content of the target</option>
+                <option value="replace">replace: "move:outer to:outer". Replaces the target element with the taken element</option>
+                <option value="copy">copy: "copy:inner to:inner". Replace the target with a copy of the taken element</option>
+                <option value="trade">trade: "exchange:inner to:inner". Swap the inner html of the taken element and the target, exchanging the contents</option>
+                <option value="exchange">exchange: "exchange:outer to:outer". Exchange the taken and the target elements</option>
+                <option value="append">append: "copy:inner to:beforeend". Put a copy of the taken element at the end of the target content</option>
+                <option value="prepend">prepend: "copy:inner to:afterbegin". Put a copy of the taken element at the beginning of the target content</option>
+            </select>
+
+            <label for="hx-take-swap-custom"><i style="padding: 0;">Optional:</i> Custom hx-swap</label>
+            <!-- TODO: Make this input nicer and make it work -->
+            <input type="text" name="hx-take-swap-custom" id="hx-take-swap-custom" placeholder="copy:inner to:afterbegin swap:500ms" />
+        </div>
+    </div>
+    <div id="take-btn-container">
+        <textarea id="btn-code" disabled style="font-family: monospace; width: 100%; text-align: center;"></textarea>
+        <button id="take-btn">Trigger hx-take</button>
+        <!-- <button hx-take="#left" hx-target="#right" hx-swap="copy:outer to:afterend" hx-trigger="click">Do it</button> -->
+    </div>
+    <template id="playground">
+        <div id="left">
+            <p>I am a paragraph of left</p>
+            <div id="left-content">
+                <p>I am a paragraph of left-content</p>
+            </div>
+            <p>I am a paragraph of left</p>
+        </div>
+        <div id="center">
+            <p>I am a paragraph of center</p>
+            <div id="center-content">
+                <p>I am a paragraph of center-content</p>
+            </div>
+            <p>I am a paragraph of center</p>
+        </div>
+        <div id="right">
+            <p>I am a paragraph of right</p>
+            <div id="right-content">
+                <p>I am a paragraph of right-content</p>
+            </div>
+            <p>I am a paragraph of right</p>
+        </div>
+        <template id="tpl-a">
+            <p>I am a paragraph of tpl-a</p>
+            <div id="tpl-a-content">
+                <p>I am a paragraph of tpl-a-content</p>
+            </div>
+            <p>I am a paragraph of tpl-a</p>
+        </template>
+        <template id="tpl-b">
+            <p>I am a paragraph of tpl-b</p>
+            <div id="tpl-b-content">
+                <p>I am a paragraph of tpl-b-content</p>
+            </div>
+            <p>I am a paragraph of tpl-b</p>
+        </template>
+    </template>
+    <div id="container" hx-take="#playground" hx-trigger="htmx:load from:body once">
+        <p>If you are seeing this htmx and/or hx-take have not loaded.</p>
+    </div>
+</body>
+</html>
