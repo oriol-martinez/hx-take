@@ -38,7 +38,18 @@
 
         #selects select {
             border-bottom: 1px gray solid;
-            padding: 10px;
+            padding: 6px;
+        }
+
+        #selects div {
+            padding: 5px;
+        }
+
+        #hx-take-swap-custom {
+            width: 20rem;
+            padding: 7px;
+            font-size: 11pt;
+            border-color: gray;
         }
 
         #take-btn-container {
@@ -99,9 +110,9 @@
     </style>
     <script>
         // A sprinkle of JavaScript
-        window.addEventListener('load', (e) => {
+        window.addEventListener('load', function(e) {
             let takeBtnCode = htmx.find('#btn-code');
-            document.querySelectorAll('select').forEach(function(sel) {
+            htmx.findAll('select').forEach(function(sel) {
                 sel.addEventListener('change', function(e) {
                     if (sel.value) {
                         htmx.find('#take-btn').setAttribute(
@@ -115,9 +126,32 @@
                     }
 
                     takeBtnCode.value = htmx.find('#take-btn').outerHTML;
+
+                    if (sel.getAttribute('id') == 'hx-take-swap') {
+                        htmx.find('#hx-take-swap-custom').value = sel.value;
+                    }
                 });
 
                 sel.dispatchEvent(new Event('change'));
+            });
+
+            htmx.find('#hx-take-swap-custom').addEventListener('keyup', function(e) {
+                if (this.value) {
+                    htmx.find('#take-btn').setAttribute('hx-swap', this.value);
+                } else {
+                    htmx.find('#take-btn').removeAttribute('hx-swap');
+                }
+
+                const opt = htmx.find(
+                    '#hx-take-swap option[value="' + this.value + '"], #hx-take-swap option[data-swap-spec="' + this.value + '"]'
+                );
+                if (opt) {
+                    opt.selected = true;
+                } else {
+                    htmx.find('#hx-take-swap option[data-custom]').selected = true;
+                }
+
+                takeBtnCode.value = htmx.find('#take-btn').outerHTML;
             });
         });
     </script>
@@ -133,8 +167,8 @@
             <select id="hx-take-source" name="hx-take">
                 <option value="#left" selected>#left</option>
                 <option value="#left-content">#left-content</option>
-                <option value="#right" selected>#right</option>
-                <option value="#right-content">#right-content</option>
+                <option value="#center">#center</option>
+                <option value="#center-content">#center-content</option>
                 <option value="#right">#right</option>
                 <option value="#right-content">#right-content</option>
                 <option value="#tpl-a">#tpl-a</option>
@@ -160,11 +194,11 @@
         <div>
             <label for="hx-target">Set this element as the target (hx-target)</label>
             <select id="hx-take-target" name="hx-target">
-                <option value="#left" selected>#left</option>
+                <option value="#left">#left</option>
                 <option value="#left-content">#left-content</option>
+                <option value="#center">#center</option>
+                <option value="#center-content">#center-content</option>
                 <option value="#right" selected>#right</option>
-                <option value="#right-content">#right-content</option>
-                <option value="#right">#right</option>
                 <option value="#right-content">#right-content</option>
                 <option value="#tpl-a">#tpl-a</option>
                 <option value="#tpl-a-content">#tpl-a-content</option>
@@ -184,19 +218,19 @@
                 <option value="afterend">afterend: Insert the content after the target element</option>
                 <option value="delete">delete: Deletes the target element regardless of the content</option>
                 <option value="none">none: Does not append content from response (out of band items will still be processed)</option>
-                <option disabled></option>
                 <option disabled>hx-take built-in swap aliases:</option>
-                <option value="move">move: Moves the content of the taken element to the content of the target</option>
-                <option value="replace">replace: "move:outer to:outer". Replaces the target element with the taken element</option>
-                <option value="copy">copy: "copy:inner to:inner". Replace the target with a copy of the taken element</option>
-                <option value="trade">trade: "exchange:inner to:inner". Swap the inner html of the taken element and the target, exchanging the contents</option>
-                <option value="exchange">exchange: "exchange:outer to:outer". Exchange the taken and the target elements</option>
-                <option value="append">append: "copy:inner to:beforeend". Put a copy of the taken element at the end of the target content</option>
-                <option value="prepend">prepend: "copy:inner to:afterbegin". Put a copy of the taken element at the beginning of the target content</option>
+                <option data-swap-spec="move:inner to:inner" value="move">move: Moves the content of the taken element to the content of the target</option>
+                <option data-swap-spec="move:outer to:outer" value="replace">replace: "move:outer to:outer". Replaces the target element with the taken element</option>
+                <option data-swap-spec="copy:inner to:inner" value="copy">copy: "copy:inner to:inner". Replace the target with a copy of the taken element</option>
+                <option data-swap-spec="exchange:inner to:inner" value="trade">trade: "exchange:inner to:inner". Swap the inner html of the taken element and the target, exchanging the contents</option>
+                <option data-swap-spec="exchange:outer to:outer" value="exchange">exchange: "exchange:outer to:outer". Exchange the taken and the target elements</option>
+                <option data-swap-spec="copy:inner to:beforeend" value="append">append: "copy:inner to:beforeend". Put a copy of the taken element at the end of the target content</option>
+                <option data-swap-spec="copy:inner to:afterbegin" value="prepend">prepend: "copy:inner to:afterbegin". Put a copy of the taken element at the beginning of the target content</option>
+                <option data-custom disabled>Custom hx-swap value</option>
             </select>
-
+        </div>
+        <div>
             <label for="hx-take-swap-custom"><i style="padding: 0;">Optional:</i> Custom hx-swap</label>
-            <!-- TODO: Make this input nicer and make it work -->
             <input type="text" name="hx-take-swap-custom" id="hx-take-swap-custom" placeholder="copy:inner to:afterbegin swap:500ms" />
         </div>
     </div>

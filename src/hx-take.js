@@ -477,7 +477,7 @@
         removeCustomSwapClasses: function(elt, role, swapStyle) {
             elt.classList.remove(this.config.swappingClass);
             elt.classList.remove(this.config.swappingClass + '-' + role);
-            elt.classList.add(this.config.swappingClass + '-' + swapStyle);
+            elt.classList.remove(this.config.swappingClass + '-' + swapStyle);
         },
     
         triggerSwapBeforeEvents: function(elt, swapStyle) {
