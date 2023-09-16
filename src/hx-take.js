@@ -233,6 +233,22 @@
             return swapSpec;
         },
 
+        isCustomSwapSpecValid: function(swapSpec) {
+            if (swapSpec.swapMode && Object.keys(this.swapModes).indexOf(swapSpec.swapMode) == -1) {
+                return false;
+            }
+
+            if (swapSpec.swapTaken && ['innerHTML', 'outerHTML'].indexOf(swapSpec.swapTaken) == -1) {
+                return false;
+            }
+
+            if (swapSpec.swapTarget && !this.isHtmxSwapStyle(swapSpec.swapTarget)) {
+                return false;
+            }
+
+            return true;
+        },
+
         customSwap: function(elt, overrideSwapSpec) {
             // Cleanup of the htmx swap flow without Ajax requests, and some additions. Here we go...
             var hx = this.internalAPI;
@@ -409,6 +425,7 @@
 
         handleSwap: function(swapStyle, target, fragment, settleInfo) {
             if (this.isHtmxSwapStyle(swapStyle)) return false;
+            if (!this.isCustomSwapSpecValid(settleInfo.swapSpec)) return true;
 
             var source = settleInfo.source;
             var swapSpec = settleInfo.swapSpec;
@@ -417,7 +434,7 @@
             var customSwapSpec = JSON.parse(JSON.stringify(swapSpec));  // Hmmm *frowns*
 
             customSwapSpec.swapDelay = 0;
-            customSwapSpec.swapStyle = swapSpec['swapTarget'];
+            customSwapSpec.swapStyle = swapSpec.swapTarget;
 
             this.triggerSwapBeforeEvents(source, swapSpec.swapTaken);
             this.triggerSwapBeforeEvents(target, swapSpec.swapTarget);
