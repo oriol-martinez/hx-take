@@ -522,7 +522,5 @@
             elt.setAttribute('hx-trigger', 'click');
             htmx.process(elt);
         });
-
-        htmx.logAll();
     });
 })();
