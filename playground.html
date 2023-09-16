@@ -15,22 +15,6 @@
             text-align: center;
         }
 
-        #reset-container {
-            display: flex;
-        }
-
-        #reset {
-            margin: auto;
-            background-color: lightseagreen;
-            padding: 10px;
-            font-size: 1em;
-        }
-
-        #reset:hover {
-            background-color: black;
-            color: white;
-        }
-
         #selects {
             border-bottom: 1px gray solid;
             padding: 5px;
@@ -38,7 +22,7 @@
 
         #selects select {
             border-bottom: 1px gray solid;
-            padding: 6px;
+            padding: 8px;
         }
 
         #selects div {
@@ -109,7 +93,7 @@
         }
     </style>
     <script>
-        // A sprinkle of JavaScript
+        // A couple of sprinkles of JavaScript
         window.addEventListener('load', function(e) {
             let takeBtnCode = htmx.find('#btn-code');
             htmx.findAll('select').forEach(function(sel) {
@@ -158,9 +142,6 @@
 </head>
 <body hx-ext="take">
     <h1>hx-take playground</h1>
-    <div id="reset-container">
-        <button id="reset" hx-take="#playground" hx-target="#container">Reset content</button>
-    </div>
     <div id="selects">
         <div>
             <label for="hx-take">Take this element (hx-take)</label>
@@ -219,14 +200,14 @@
                 <option value="delete">delete: Deletes the target element regardless of the content</option>
                 <option value="none">none: Does not append content from response (out of band items will still be processed)</option>
                 <option disabled>hx-take built-in swap aliases:</option>
-                <option data-swap-spec="move:inner to:inner" value="move">move: Moves the content of the taken element to the content of the target</option>
+                <option data-swap-spec="move:inner to:inner" value="move">move: "move:inner to:inner". Moves the content of the taken element to the content of the target</option>
                 <option data-swap-spec="move:outer to:outer" value="replace">replace: "move:outer to:outer". Replaces the target element with the taken element</option>
                 <option data-swap-spec="copy:inner to:inner" value="copy">copy: "copy:inner to:inner". Replace the target with a copy of the taken element</option>
-                <option data-swap-spec="exchange:inner to:inner" value="trade">trade: "exchange:inner to:inner". Swap the inner html of the taken element and the target, exchanging the contents</option>
+                <option data-swap-spec="exchange:inner to:inner" value="trade">trade: "exchange:inner to:inner". Swap the content of the taken element and the target, exchanging the contents</option>
                 <option data-swap-spec="exchange:outer to:outer" value="exchange">exchange: "exchange:outer to:outer". Exchange the taken and the target elements</option>
                 <option data-swap-spec="copy:inner to:beforeend" value="append">append: "copy:inner to:beforeend". Put a copy of the taken element at the end of the target content</option>
                 <option data-swap-spec="copy:inner to:afterbegin" value="prepend">prepend: "copy:inner to:afterbegin". Put a copy of the taken element at the beginning of the target content</option>
-                <option data-custom disabled>Custom hx-swap value</option>
+                <option data-custom disabled value="">Custom hx-swap</option>
             </select>
         </div>
         <div>
@@ -236,6 +217,7 @@
     </div>
     <div id="take-btn-container">
         <textarea id="btn-code" disabled style="font-family: monospace; width: 100%; text-align: center;"></textarea>
+        <button id="reset" hx-take="#playground" hx-target="#container">Reset content</button>
         <button id="take-btn">Trigger hx-take</button>
         <!-- <button hx-take="#left" hx-target="#right" hx-swap="copy:outer to:afterend" hx-trigger="click">Do it</button> -->
     </div>

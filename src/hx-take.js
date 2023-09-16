@@ -266,7 +266,7 @@
                 var swapSpec = overrideSwapSpec;
             }
 
-            target.classList.add(htmx.config.swappingClass);
+            htmx.addClass(target, htmx.config.swappingClass);
             this.addCustomSwapClasses(target, 'target', swapSpec.swapStyle);
 
             if (swapSpec.swapTaken == 'outerHTML') {
@@ -276,7 +276,7 @@
             }
 
             if (!hx.triggerEvent(target, 'htmx:beforeSwap')) return;
-            source.classList.add(htmx.config.swappingClass);
+            htmx.addClass(source, htmx.config.swappingClass);
             this.addCustomSwapClasses(source, 'source', swapSpec.swapStyle);
 
             // optional transition API promise callbacks
@@ -335,21 +335,19 @@
                     }
     
                     if (target) {
-                        target.classList.remove(htmx.config.swappingClass);
+                        htmx.removeClass(target, htmx.config.swappingClass);
                         self.removeCustomSwapClasses(target, 'target', swapSpec.swapStyle);
                     }
 
                     if (source) {
-                        source.classList.remove(htmx.config.swappingClass);
+                        htmx.removeClass(source, htmx.config.swappingClass);
                         self.removeCustomSwapClasses(source, 'source', swapSpec.swapStyle);
                     }
     
                     forEach(settleInfo.elts, function(settleElt) {
                         if (!settleElt) return;
 
-                        if (settleElt.classList) {
-                            settleElt.classList.add(htmx.config.settlingClass);
-                        }
+                        htmx.addClass(settleElt, htmx.config.settlingClass);
                         hx.triggerEvent(settleElt, 'htmx:afterSwap');
                     });
     
@@ -361,7 +359,7 @@
                             if (!settleElt) return;
 
                             if (settleElt.classList) {
-                                settleElt.classList.remove(htmx.config.settlingClass);
+                                htmx.removeClass(settleElt, htmx.config.settlingClass);
                             }
                             hx.triggerEvent(settleElt, 'htmx:afterSettle');
                         });
@@ -486,26 +484,27 @@
         },
 
         addCustomSwapClasses: function(elt, role, swapStyle) {
-            elt.classList.add(this.config.swappingClass);
-            elt.classList.add(this.config.swappingClass + '-' + role);
-            if (swapStyle != extName) elt.classList.add(this.config.swappingClass + '-' + swapStyle);
+            htmx.addClass(elt, this.config.swappingClass);
+            htmx.addClass(elt, this.config.swappingClass + '-' + role);
+            if (swapStyle != extName) htmx.addClass(elt, this.config.swappingClass + '-' + swapStyle);
         },
 
         removeCustomSwapClasses: function(elt, role, swapStyle) {
-            elt.classList.remove(this.config.swappingClass);
-            elt.classList.remove(this.config.swappingClass + '-' + role);
-            elt.classList.remove(this.config.swappingClass + '-' + swapStyle);
+            htmx.removeClass(elt, this.config.swappingClass);
+            htmx.removeClass(elt, this.config.swappingClass + '-' + role);
+            htmx.removeClass(elt, this.config.swappingClass + '-' + swapStyle);
         },
     
         triggerSwapBeforeEvents: function(elt, swapStyle) {
             if (!elt) return;
             this.internalAPI.triggerEvent(elt, this.config.eventsPrefix + 'Before');
-            htmx.process(elt);
+            if (swapStyle != extName) this.internalAPI.triggerEvent(elt, this.config.eventsPrefix + 'Before' + capitalize(swapStyle));
         },
     
         triggerSwapAfterEvents: function(elt, swapStyle) {
             if (!elt) return;
             this.internalAPI.triggerEvent(elt, this.config.eventsPrefix + 'After');
+            if (swapStyle != extName) this.internalAPI.triggerEvent(elt, this.config.eventsPrefix + 'After' + capitalize(swapStyle));
             htmx.process(elt);
         },
     });

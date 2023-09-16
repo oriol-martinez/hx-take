@@ -57,12 +57,13 @@
         },
 
         updateScrollState: function(content, swapSpec) {
+            var hx = this.internalAPI;
             var first = content[0];
             var last = content[content.length - 1];
             if (swapSpec.scroll) {
                 var target = null;
                 if (swapSpec.scrollTarget) {
-                    target = querySelectorExt(first, swapSpec.scrollTarget);
+                    target = hx.querySelectorExt(first, swapSpec.scrollTarget);
                 }
                 if (swapSpec.scroll === "top" && (first || target)) {
                     target = target || first;
@@ -80,7 +81,7 @@
                     if (swapSpec.showTarget === "window") {
                         targetStr = "body";
                     }
-                    target = querySelectorExt(first, targetStr);
+                    target = hx.querySelectorExt(first, targetStr);
                 }
                 if (swapSpec.show === "top" && (first || target)) {
                     target = target || first;
@@ -232,9 +233,24 @@
             return swapSpec;
         },
 
+        isCustomSwapSpecValid: function(swapSpec) {
+            if (swapSpec.swapMode && Object.keys(this.swapModes).indexOf(swapSpec.swapMode) == -1) {
+                return false;
+            }
+
+            if (swapSpec.swapTaken && ['innerHTML', 'outerHTML'].indexOf(swapSpec.swapTaken) == -1) {
+                return false;
+            }
+
+            if (swapSpec.swapTarget && !this.isHtmxSwapStyle(swapSpec.swapTarget)) {
+                return false;
+            }
+
+            return true;
+        },
+
         customSwap: function(elt, overrideSwapSpec) {
             // Cleanup of the htmx swap flow without Ajax requests, and some additions. Here we go...
-            console.warn('customSwap', elt, overrideSwapSpec);
             var hx = this.internalAPI;
             var take = this.getTakeInfo(elt);
             if (take.target && take.source) {
@@ -250,7 +266,7 @@
                 var swapSpec = overrideSwapSpec;
             }
 
-            target.classList.add(htmx.config.swappingClass);
+            htmx.addClass(target, htmx.config.swappingClass);
             this.addCustomSwapClasses(target, 'target', swapSpec.swapStyle);
 
             if (swapSpec.swapTaken == 'outerHTML') {
@@ -260,7 +276,7 @@
             }
 
             if (!hx.triggerEvent(target, 'htmx:beforeSwap')) return;
-            source.classList.add(htmx.config.swappingClass);
+            htmx.addClass(source, htmx.config.swappingClass);
             this.addCustomSwapClasses(source, 'source', swapSpec.swapStyle);
 
             // optional transition API promise callbacks
@@ -319,21 +335,19 @@
                     }
     
                     if (target) {
-                        target.classList.remove(htmx.config.swappingClass);
+                        htmx.removeClass(target, htmx.config.swappingClass);
                         self.removeCustomSwapClasses(target, 'target', swapSpec.swapStyle);
                     }
 
                     if (source) {
-                        source.classList.remove(htmx.config.swappingClass);
+                        htmx.removeClass(source, htmx.config.swappingClass);
                         self.removeCustomSwapClasses(source, 'source', swapSpec.swapStyle);
                     }
     
                     forEach(settleInfo.elts, function(settleElt) {
                         if (!settleElt) return;
 
-                        if (settleElt.classList) {
-                            settleElt.classList.add(htmx.config.settlingClass);
-                        }
+                        htmx.addClass(settleElt, htmx.config.settlingClass);
                         hx.triggerEvent(settleElt, 'htmx:afterSwap');
                     });
     
@@ -345,7 +359,7 @@
                             if (!settleElt) return;
 
                             if (settleElt.classList) {
-                                settleElt.classList.remove(htmx.config.settlingClass);
+                                htmx.removeClass(settleElt, htmx.config.settlingClass);
                             }
                             hx.triggerEvent(settleElt, 'htmx:afterSettle');
                         });
@@ -409,6 +423,7 @@
 
         handleSwap: function(swapStyle, target, fragment, settleInfo) {
             if (this.isHtmxSwapStyle(swapStyle)) return false;
+            if (!this.isCustomSwapSpecValid(settleInfo.swapSpec)) return true;
 
             var source = settleInfo.source;
             var swapSpec = settleInfo.swapSpec;
@@ -417,7 +432,7 @@
             var customSwapSpec = JSON.parse(JSON.stringify(swapSpec));  // Hmmm *frowns*
 
             customSwapSpec.swapDelay = 0;
-            customSwapSpec.swapStyle = swapSpec['swapTarget'];
+            customSwapSpec.swapStyle = swapSpec.swapTarget;
 
             this.triggerSwapBeforeEvents(source, swapSpec.swapTaken);
             this.triggerSwapBeforeEvents(target, swapSpec.swapTarget);
@@ -469,26 +484,27 @@
         },
 
         addCustomSwapClasses: function(elt, role, swapStyle) {
-            elt.classList.add(this.config.swappingClass);
-            elt.classList.add(this.config.swappingClass + '-' + role);
-            if (swapStyle != extName) elt.classList.add(this.config.swappingClass + '-' + swapStyle);
+            htmx.addClass(elt, this.config.swappingClass);
+            htmx.addClass(elt, this.config.swappingClass + '-' + role);
+            if (swapStyle != extName) htmx.addClass(elt, this.config.swappingClass + '-' + swapStyle);
         },
 
         removeCustomSwapClasses: function(elt, role, swapStyle) {
-            elt.classList.remove(this.config.swappingClass);
-            elt.classList.remove(this.config.swappingClass + '-' + role);
-            if (swapStyle != extName) elt.classList.add(this.config.swappingClass + '-' + swapStyle);
+            htmx.removeClass(elt, this.config.swappingClass);
+            htmx.removeClass(elt, this.config.swappingClass + '-' + role);
+            htmx.removeClass(elt, this.config.swappingClass + '-' + swapStyle);
         },
     
         triggerSwapBeforeEvents: function(elt, swapStyle) {
             if (!elt) return;
             this.internalAPI.triggerEvent(elt, this.config.eventsPrefix + 'Before');
-            htmx.process(elt);
+            if (swapStyle != extName) this.internalAPI.triggerEvent(elt, this.config.eventsPrefix + 'Before' + capitalize(swapStyle));
         },
     
         triggerSwapAfterEvents: function(elt, swapStyle) {
             if (!elt) return;
             this.internalAPI.triggerEvent(elt, this.config.eventsPrefix + 'After');
+            if (swapStyle != extName) this.internalAPI.triggerEvent(elt, this.config.eventsPrefix + 'After' + capitalize(swapStyle));
             htmx.process(elt);
         },
     });
@@ -506,5 +522,7 @@
             elt.setAttribute('hx-trigger', 'click');
             htmx.process(elt);
         });
+
+        htmx.logAll();
     });
 })();
