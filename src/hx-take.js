@@ -57,6 +57,7 @@
         },
 
         updateScrollState: function(content, swapSpec) {
+            // Copy of the updateScrollState htmx method
             var hx = this.internalAPI;
             var first = content[0];
             var last = content[content.length - 1];
@@ -237,7 +238,7 @@
         },
 
         customSwap: function(elt, overrideSwapSpec) {
-            // Cleanup of the htmx swap flow without Ajax requests, and some additions. Here we go...
+            // Cleanup of the htmx handleAjaxResponse method without Ajax requests, and some additions. Here we go...
             var hx = this.internalAPI;
             var take = this.getTakeInfo(elt);
             if (take.target && take.source) {
@@ -413,9 +414,7 @@
 
             performSwap = this.swapModes[swapSpec.swapMode].before(source, target, customSwapSpec);
 
-            if (performSwap) {
-                this.customSwap(settleInfo.elt, customSwapSpec);
-            }
+            if (performSwap) this.customSwap(settleInfo.elt, customSwapSpec);
 
             this.swapModes[swapSpec.swapMode].after(source, target, customSwapSpec);
 
@@ -492,7 +491,6 @@
                         source.content ? source.content.append(child) : source.append(child);
                     });
 
-                    return false;
                 },
                 after: function(source, target, customSwapSpec) {
                     // *crickets*
