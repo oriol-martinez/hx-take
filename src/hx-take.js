@@ -109,19 +109,6 @@
             ].indexOf(swapStyle) !== -1);
         },
 
-        swapStyleProp: function(swapStyle) {
-            return {
-                'innerHTML': 'innerHTML',
-                'outerHTML': 'outerHTML',
-                'beforebegin': 'outerHTML',
-                'afterbegin': 'innerHTML',
-                'beforeend': 'innerHTML',
-                'afterend': 'outerHTML',
-                'delete': 'outerHTML',
-                'none': 'outerHTML',
-            }[swapStyle] || 'innerHTML';
-        },
-
         getSwapStyleFromAlias: function(swapStyle) {
             swapStyle = splitOnWhitespace(swapStyle)[0];
             return (this.config.swapStyleAliases[swapStyle] || '');
@@ -304,17 +291,6 @@
                     var settleInfo = {tasks: [], elts: [target, source], source: source, elt: elt, swapSpec: swapSpec};
                     hx.selectAndSwap(swapSpec.swapStyle, target, elt, sourceStr, settleInfo);
 
-                    // Get the elements again, in case the swap messed that up.
-                    take = self.getTakeInfo(elt);
-                    target = take.target;
-                    source = take.source;
-                    settleInfo['elts'] = [];
-                    if (target) settleInfo['elts'].push(target);
-                    if (source) {
-                        settleInfo['elts'].push(source);
-                        settleInfo['source'] = source;
-                    }
-
                     if (selectionInfo.elt &&
                         !hx.bodyContains(selectionInfo.elt) &&
                         selectionInfo.elt.getAttribute('id')) {
@@ -427,8 +403,6 @@
 
             var source = settleInfo.source;
             var swapSpec = settleInfo.swapSpec;
-            var sourceProp = this.swapStyleProp(swapSpec.swapTaken);
-            var targetProp = this.swapStyleProp(swapSpec.swapTarget);
             var customSwapSpec = JSON.parse(JSON.stringify(swapSpec));  // Hmmm *frowns*
 
             customSwapSpec.swapDelay = 0;
@@ -437,13 +411,13 @@
             this.triggerSwapBeforeEvents(source, swapSpec.swapTaken);
             this.triggerSwapBeforeEvents(target, swapSpec.swapTarget);
 
-            performSwap = this.swapModes[swapSpec.swapMode].before(source, target, sourceProp, targetProp);
+            performSwap = this.swapModes[swapSpec.swapMode].before(source, target, customSwapSpec);
 
             if (performSwap) {
                 this.customSwap(settleInfo.elt, customSwapSpec);
             }
 
-            this.swapModes[swapSpec.swapMode].after(source, target, sourceProp, targetProp);
+            this.swapModes[swapSpec.swapMode].after(source, target, customSwapSpec);
 
             this.triggerSwapAfterEvents(target, swapSpec.swapTarget);
             this.triggerSwapAfterEvents(source, swapSpec.swapTaken);
@@ -453,32 +427,100 @@
 
         swapModes: {
             copy: {
-                before: function(source, target, sourceProp, targetProp) {
+                before: function(source, target, customSwapSpec) {
                     return true;
                 },
-                after: function(source, target, sourceProp, targetProp) {
-                    // *tumbleweed*
-                },
+                after: function(source, target, customSwapSpec) {
+                    if (target.content) {
+                        if (customSwapSpec.swapTarget == 'innerHTML') {
+                            target.content.replaceChildren();
+                        }
+
+                        if (customSwapSpec.swapTaken == 'outerHTML') {
+                            var sourceChild = [source];
+                        } else {
+                            var sourceChild = source.content ? source.content.childNodes : source.childNodes;
+                        }
+
+                        forEach(sourceChild, function(child) {
+                            if (customSwapSpec.swapTarget == 'afterbegin') {
+                                target.content.prepend(child.cloneNode(true));
+                            } else {
+                                target.content.append(child.cloneNode(true));
+                            }
+                        });
+                    }
+                }
             },
             exchange: {
-                before: function(source, target, sourceProp, targetProp) {
-                    var sourceSrc = source[sourceProp];
-                    var targetSrc = target[targetProp];
-                    source[sourceProp] = targetSrc;
-                    target[targetProp] = sourceSrc;
+                before: function(source, target, customSwapSpec) {
+                    if (customSwapSpec.swapTaken == 'outerHTML' && customSwapSpec.swapTarget == 'outerHTML') {
+                        var sourceClone = source.cloneNode(true);
+                        var targetClone = target.cloneNode(true);
+                        source.parentElement.replaceChild(targetClone, source);
+                        target.parentElement.replaceChild(sourceClone, target);
+
+                        return false;
+                    }
+
+                    var sourceNodes = [];
+                    if (customSwapSpec.swapTaken == 'innerHTML') {
+                        forEach(source.content ? source.content.childNodes : source.childNodes, function(child) {
+                            sourceNodes.push(child.cloneNode(true));
+                        });
+                    } else {
+                        var sourceNodes = [source.cloneNode(true)];
+                    }
+
+                    var targetNodes = [];
+                    if (customSwapSpec.swapTarget == 'innerHTML') {
+                        forEach(target.content ? target.content.childNodes : target.childNodes, function(child) {
+                            targetNodes.push(child.cloneNode(true));
+                        });
+                    } else {
+                        var targetNodes = [target.cloneNode(true)];
+                    }
+
+                    source.content ? source.content.replaceChildren() : source.replaceChildren();
+                    target.content ? target.content.replaceChildren() : target.replaceChildren();
+
+                    forEach(sourceNodes, function(child) {
+                        target.content ? target.content.append(child) : target.append(child);
+                    });
+
+                    forEach(targetNodes, function(child) {
+                        source.content ? source.content.append(child) : source.append(child);
+                    });
 
                     return false;
                 },
-                after: function(source, target, sourceProp, targetProp) {
+                after: function(source, target, customSwapSpec) {
                     // *crickets*
                 }
             },
             move: {
-                before: function(source, target, sourceProp, targetProp) {
+                before: function(source, target, customSwapSpec) {
                     return true;
                 },
-                after: function(source, target, sourceProp, targetProp) {
-                    source[sourceProp] = '';
+                after: function(source, target, customSwapSpec) {
+                    if (target.content) {
+                        if (customSwapSpec.swapTarget == 'innerHTML') target.content.replaceChildren();
+                        var sourceNodes = source.content ? source.content.childNodes : source.childNodes;
+
+                        forEach(sourceNodes, function(child) {
+                            if (customSwapSpec.swapTarget == 'afterbegin') {
+                                target.content.prepend(child.cloneNode(true));
+                            } else {
+                                target.content.append(child.cloneNode(true));
+                            }
+                        });
+                    }
+
+                    if (customSwapSpec.swapTaken == 'outerHTML') {
+                        source.remove();
+                    } else {
+                        source.content ? source.content.replaceChildren() : source.replaceChildren();
+                    }
                 }
             },
         },

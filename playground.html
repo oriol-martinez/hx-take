@@ -21,7 +21,7 @@
         }
 
         #selects select {
-            border-bottom: 1px gray solid;
+            border: 1px gray solid;
             padding: 8px;
         }
 
@@ -219,7 +219,6 @@
         <textarea id="btn-code" disabled style="font-family: monospace; width: 100%; text-align: center;"></textarea>
         <button id="reset" hx-take="#playground" hx-target="#container">Reset content</button>
         <button id="take-btn">Trigger hx-take</button>
-        <!-- <button hx-take="#left" hx-target="#right" hx-swap="copy:outer to:afterend" hx-trigger="click">Do it</button> -->
     </div>
     <template id="playground">
         <div id="left">
