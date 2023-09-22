@@ -16,7 +16,7 @@ An **[htmx](https://htmx.org/essays/#memes)** extension that allows to take an e
     </button>
 </div>
 ```
-See it for yourself and experiment with it in the playground page.
+See it for yourself and experiment with it in the **[playground page](https://oriol-martinez.github.io/hx-take/playground.html)**.
 
 ## Use it
 
@@ -137,7 +137,7 @@ The generic **`hx-take-swapping`** is added to both elements.
 **`hx-take-swapping-{swap style}`,** like **`hx-take-swapping-beforeend`**, specifying the swap style of both the target and taken elements.
 
 ## Examples
-Play around with `hx-take`in the playground page.
+Play around with `hx-take`in the **[playground page](https://oriol-martinez.github.io/hx-take/playground.html)**.
 
 ### Get the content
 ```html
