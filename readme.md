@@ -23,7 +23,7 @@ See it for yourself and experiment with it in the playground page.
 ### Include it on a script tag, after htmx, using a CDN on your html.
 
 ```html
-<script stc="https://unpkg.com/hx-take/dist/hx-take.min.js"></script>
+<script src="https://unpkg.com/hx-take@0.3.0/dist/hx-take.min.js"></script>
 ```
 
 ### or install it and use it with npm
@@ -74,13 +74,13 @@ They work together to specify the swap behavior of the taken and the target elem
 #### Mode modifiers: `move:`, `copy:`, `exchange:`
 
 The "mode" modifiers specify how will the **taken element content** be swapped into the target element. These modifiers accept `innerHTML` (or the `inner` alias) and `outerHTML` (or the `outer` alias) as values.
-- **`copy:`** (default) 🟦 ➡️ 🟦
+- **`copy:`** (default) 🟦 ➡️ 🟦\
 Copies the innerHTML or outerHTML of the taken element to the target element.
 `copy:innerHTML` or `copy:inner`, `copy:outerHTML` or `copy:outer`.
-- **`move:`** ⬜️ ➡️ 🟦
+- **`move:`** ⬜️ ➡️ 🟦\
 Move the innerHTML or outerHTML of the taken element to the target element.
 `move:innerHTML` or `move:inner`, `move:outerHTML` or `move:outer`.
-- **`exchange:`** 🟥 ↔️ 🟦
+- **`exchange:`** 🟥 ↔️ 🟦\
 Exchanges the innerHTML or outerHTML of the taken element with the target element.
 `exchange:innerHTML` or `exchange:inner`, `exchange:outerHTML` or `exchange:outer`.
 This mode is not compatible with the `hx-select`attribute.
@@ -164,7 +164,8 @@ Play around with `hx-take`in the playground page.
     <input type="submit" value="Send this thing!" />
 </form>
 ```
->Clicking the "Add a text field" button will add copies of the extra field at the end of the `#fields`div content. `ht-take=".extra-field"`will select just the first element with that class.
+>Clicking the "Add a text field" button will add copies of the extra field at the end of the `#fields`div content.\
+>`ht-take=".extra-field"`will select just the first element with that class.\
 >⚠️ Be careful when using the `copy:` swap mode, you may duplicate elements with the same `id`.
 
 ### Replace elements that perform more actions
