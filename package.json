@@ -1,15 +1,15 @@
 {
-  "name": "hx-ext-tpl",
-  "version": "0.2.1",
+  "name": "hx-take",
+  "version": "0.3.0",
   "description": "An htmx extension that allows to select and swap existing elements.",
-  "main": "dist/hx-ext-tpl.min.js",
+  "main": "dist/hx-take.min.js",
   "scripts": {
     "dist": "cp -r src/* dist/ && npm run-script ugly",
     "ugly": "uglifyjs -m eval -o dist/hx-take.min.js dist/hx-take.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/oriol-martinez/htmx-hx-ext-tpl.git"
+    "url": "git+https://github.com/oriol-martinez/hx-take.git"
   },
   "keywords": [
     "htmx"
@@ -17,9 +17,9 @@
   "author": "Oriol Martínez",
   "license": "BSD 2-Clause",
   "bugs": {
-    "url": "https://github.com/oriol-martinez/htmx-hx-ext-tpl/issues"
+    "url": "https://github.com/oriol-martinez/hx-take/issues"
   },
-  "homepage": "https://github.com/oriol-martinez/htmx-hx-ext-tpl#readme",
+  "homepage": "https://github.com/oriol-martinez/hx-take#readme",
   "devDependencies": {
     "uglify-js": "^3.17.4"
   },
