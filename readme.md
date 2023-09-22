@@ -1,4 +1,5 @@
 # hx-take 🤏
+
 ## Version 0.3.0
 
 An **[htmx](https://htmx.org/essays/#memes)** extension that allows to take an existing element and copy, move or exchange it into a target. Like this:
@@ -18,11 +19,15 @@ An **[htmx](https://htmx.org/essays/#memes)** extension that allows to take an e
 See it for yourself and experiment with it in the playground page.
 
 ## Use it
+
 ### Include it on a script tag, after htmx, using a CDN on your html.
+
 ```html
 <script stc="https://unpkg.com/hx-take/dist/hx-take.min.js"></script>
 ```
+
 ### or install it and use it with npm
+
 ```bash
 npm install hx-take
 ```
@@ -31,10 +36,13 @@ then require it after you have the `window.htmx` object declared.
 window.htmx = require('htmx.org');
 require('hx-take');
 ```
+
 ### or include your own copy of the JavaScript file
+
 You can find the regular and minified files that you can use in the dist directory of the repository.
 
 ## How it works
+
 Add "`take`" to the [htmx extension attribute](https://htmx.org/attributes/hx-ext/), like `hx-ext="take"`, to a parent element (the `body` or a container element) to enable hx-take on the container element and all its children. You can also just add the `hx-ext="take"` attribute into the "triggering" element itself.
 
 Use the attribute **`hx-take`** to select an existing element on the document specifying a CSS query, if the query returns multiple elements it will always get the first one.
@@ -46,7 +54,7 @@ If **`hx-target`** is not specified it will target **itself**. Check the `hx-tar
 https://htmx.org/attributes/hx-target/
 
 If **`hx-swap`** is not specified it will copy the `innerHTML` of the selected element with `hx-take` into the **`innerHTML` of the target**.
-Check the `hx-swap` attribute in the htmx docs here: https://htmx.org/attributes/hx-swap/.
+Check the `hx-swap` attribute in the htmx docs here: https://htmx.org/attributes/hx-swap/. \
 Also check the "Advanced swap specifications" section to read about the new swap mechanics that hx-take adds.
 
 **`hx-select`** can be used to select part of the taken content specifying a CSS query.
@@ -55,11 +63,16 @@ https://htmx.org/attributes/hx-select/
 > `hx-select`is ignored with the `exchange` swap mode. Read more about swap modes on the "Advanced swap specifications" section.
 
 ### Shadow DOM compatibility
+
 **hx-take** is compatible with elements that use **shadow DOM** 👻, like HTML `<template>` tags. If the target (or a taken element too in case of using the exchange swap mode) has a `#document-fragment` (js `content`property) it will modify the contents of the fragment.
 
 ### Advanced swap specifications
-This extension adds 4 additional swap methods using the [htmx swap modifiers syntax](https://htmx.org/attributes/hx-swap/#modifiers). They work together to specify the swap behavior of the taken and the target elements.
+
+This extension adds 4 additional swap methods using the [htmx swap modifiers syntax](https://htmx.org/attributes/hx-swap/#modifiers). 
+They work together to specify the swap behavior of the taken and the target elements.
+
 #### Mode modifiers: `move:`, `copy:`, `exchange:`
+
 The "mode" modifiers specify how will the **taken element content** be swapped into the target element. These modifiers accept `innerHTML` (or the `inner` alias) and `outerHTML` (or the `outer` alias) as values.
 - **`copy:`** (default) 🟦 ➡️ 🟦
 Copies the innerHTML or outerHTML of the taken element to the target element.
@@ -73,6 +86,7 @@ Exchanges the innerHTML or outerHTML of the taken element with the target elemen
 This mode is not compatible with the `hx-select`attribute.
 
 #### Target modifier: `to:`
+
 The "`to:`" modifier specifies how will the moved, copied or exchanged content from the taken element be swapped **into the target element**. The target modifier values are the standard [htmx swap styles](https://htmx.org/attributes/hx-swap/):
 - `to:innerHTML` or `to:inner` (default): Replace the inner html of the target element with the taken content. 
 - `to:outerHTML` or `to:outer`: Replace the entire target element with the taken element content. 
@@ -82,7 +96,9 @@ The "`to:`" modifier specifies how will the moved, copied or exchanged content f
 - `to:afterend`: Insert the taken content after the target element. 
 - `to:delete`: Deletes the target element regardless of the taken content.
 - `to:none`: Does not append content from the taken content.
+
 #### Swap specifications aliases
+
 Some common swap specifications have aliases:
 - **`hx-swap="move"`**: alias of `hx-swap="move:inner to:inner"`. Moves the content of the taken element to the content of the target.
 - **`hx-swap="replace"`**: alias of `hx-swap="move:outer to:outer"`. Replaces the target element with the taken element.
@@ -91,21 +107,30 @@ Some common swap specifications have aliases:
 - **`hx-swap="exchange"`**: alias of `hx-swap="exchange:outer to:outer"`. Swap the content of the taken element and the target, exchanging the contents.
 - **`hx-swap="append"`**: alias of `hx-swap="copy:inner to:beforeend"`. Put a copy of the taken element at the end of the target content.
 - **`hx-swap="prepend"`**: alias of `hx-swap="copy:inner to:afterbegin"`. Put a copy of the taken element at the beginning of the target content.
+
 #### Using htmx swap modifiers
+
 As the `hx-take`swap modifiers are additions to the existing swap modifiers of htmx, they are all compatible. So `hx-swap="copy:inner to:beforeend swap:250ms"` will work, adding a delay of 250ms to the swap.
 
 #### `hx-swap-oob`compatibility
+
 If the taken element content includes an element with the [swap out of band attribute](https://htmx.org/attributes/hx-swap-oob/), it will be processed.
 
 ### Events
-A set of events is triggered on a `hx-take` swap on both the taken element and the target element.
-When elements are triggered, it will send a generic **`extTakeBefore`** (`ext-take-before` in kebabcase). Then a more specific **`extTakeBeforeTarget`** and **`extTakeBeforeTaken`** events are triggered on the target or taken elements. Finally a **`extTakeBeforeTarget{swap style}`** and **`extTakeBeforeTaken{swap style}`** will be triggered on the elements. `{swap style}` being the swap style of the element, for instance **`extTakeBeforeTargetAfterbegin`** or **`extTakeBeforeTakenInnerHTML`**.
-After the swap is performed all the events are triggered again with  `After` instead of `Before`:
-**`extTakeAfter`**, 
-**`extTakeAfterTarget`** and **`extTakeAfterTaken`**,
+
+A set of events is triggered on a `hx-take` swap on both the taken element and the target element.\
+When elements are triggered, it will send a generic **`extTakeBefore`** (`ext-take-before` in kebabcase).\
+Then a more specific **`extTakeBeforeTarget`** and **`extTakeBeforeTaken`** events are triggered on the target or taken elements.\
+Finally a **`extTakeBeforeTarget{swap style}`** and **`extTakeBeforeTaken{swap style}`** will be triggered on the elements, `{swap style}` being the swap style of the element, for instance **`extTakeBeforeTargetAfterbegin`** or **`extTakeBeforeTakenInnerHTML`**.
+
+After the swap is performed all the events are triggered again with `After` instead of `Before`:
+
+**`extTakeAfter`**,\
+**`extTakeAfterTarget`** and **`extTakeAfterTaken`**,\
 **`extTakeAfterTarget{swap style}`** and **`extTakeAfterTaken{swap style}`**.
 
 ### Classes
+
 A set of classes is added during the swap to the taken and target elements depending on their role and swap style.
 The generic **`hx-take-swapping`** is added to both elements.
 **`hx-take-swapping-taken`** or **`hx-take-swapping-target`** to the specific element depending on its role.
@@ -187,7 +212,9 @@ It's written in ES5 JavaScript like htmx (1.9.x), the bulk of the code is a modi
 ## Haiku
 
 > XHR fatigue:
+> 
 > longing for some elements
+> 
 > already in hand
 
 *Based on the htmx webpage footer haiku.*
