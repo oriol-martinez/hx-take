@@ -42,7 +42,9 @@
 
         init: function(htmxInternalAPI) {
             this.internalAPI = htmxInternalAPI;
-            htmx[extName] = this;
+
+            if (! htmx.ext) htmx.ext = {};
+            htmx.ext[extName] = this;
         },
     
         onEvent: function(name, event) {
@@ -254,18 +256,18 @@
                 var swapSpec = overrideSwapSpec;
             }
 
-            htmx.addClass(target, htmx.config.swappingClass);
-            this.addCustomSwapClasses(target, 'target', swapSpec.swapStyle);
-
             if (swapSpec.swapTaken == 'outerHTML') {
                 var sourceStr = source.outerHTML;
             } else {
                 var sourceStr = source.innerHTML;
             }
 
+            htmx.addClass(target, htmx.config.swappingClass);
+            this.addCustomSwapClasses(target, 'target', swapSpec.swapStyle);
+
             if (!hx.triggerEvent(target, 'htmx:beforeSwap')) return;
             htmx.addClass(source, htmx.config.swappingClass);
-            this.addCustomSwapClasses(source, 'source', swapSpec.swapStyle);
+            this.addCustomSwapClasses(source, 'taken', swapSpec.swapStyle);
 
             // optional transition API promise callbacks
             var settleResolve = null;
@@ -318,7 +320,12 @@
 
                     if (source) {
                         htmx.removeClass(source, htmx.config.swappingClass);
-                        self.removeCustomSwapClasses(source, 'source', swapSpec.swapStyle);
+                        self.removeCustomSwapClasses(target, 'taken', swapSpec.swapStyle);
+                        self.removeCustomSwapClasses(source, 'taken', swapSpec.swapStyle);
+                        forEach (target.childNodes, function(child) {
+                            htmx.removeClass(child, htmx.config.swappingClass);
+                            self.removeCustomSwapClasses(child, 'taken', swapSpec.swapStyle);
+                        });
                     }
     
                     forEach(settleInfo.elts, function(settleElt) {
@@ -409,27 +416,27 @@
             customSwapSpec.swapDelay = 0;
             customSwapSpec.swapStyle = swapSpec.swapTarget;
 
-            this.triggerSwapBeforeEvents(source, swapSpec.swapTaken);
-            this.triggerSwapBeforeEvents(target, swapSpec.swapTarget);
+            this.triggerSwapEvents(source, 'before', 'taken', swapSpec.swapTaken);
+            this.triggerSwapEvents(target, 'before', 'target', swapSpec.swapTarget);
 
-            performSwap = this.swapModes[swapSpec.swapMode].before(source, target, customSwapSpec);
+            performSwap = this.swapModes[swapSpec.swapMode].before(source, target, customSwapSpec, settleInfo);
 
             if (performSwap) this.customSwap(settleInfo.elt, customSwapSpec);
 
-            this.swapModes[swapSpec.swapMode].after(source, target, customSwapSpec);
+            this.swapModes[swapSpec.swapMode].after(source, target, customSwapSpec, settleInfo);
 
-            this.triggerSwapAfterEvents(target, swapSpec.swapTarget);
-            this.triggerSwapAfterEvents(source, swapSpec.swapTaken);
+            this.triggerSwapEvents(target, 'after', 'target', swapSpec.swapTarget);
+            this.triggerSwapEvents(source, 'after', 'taken', swapSpec.swapTaken);
 
             return true;
         },
 
         swapModes: {
             copy: {
-                before: function(source, target, customSwapSpec) {
+                before: function(source, target, customSwapSpec, settleInfo) {
                     return true;
                 },
-                after: function(source, target, customSwapSpec) {
+                after: function(source, target, customSwapSpec, settleInfo) {
                     if (target.content) {
                         if (customSwapSpec.swapTarget == 'innerHTML') {
                             target.content.replaceChildren();
@@ -452,14 +459,22 @@
                 }
             },
             exchange: {
-                before: function(source, target, customSwapSpec) {
+                before: function(source, target, customSwapSpec, settleInfo) {
                     if (customSwapSpec.swapTaken == 'outerHTML' && customSwapSpec.swapTarget == 'outerHTML') {
+                        var hx = htmx.ext.take.internalAPI;
                         var sourceClone = source.cloneNode(true);
                         var targetClone = target.cloneNode(true);
+
+                        forEach(htmx.findAll(sourceClone.content || sourceClone, '[hx-swap-oob], [data-hx-swap-oob]'), function(oobElement) {
+                            var oobValue = hx.getAttributeValue(oobElement, "hx-swap-oob");
+                            if (oobValue != null) hx.oobSwap(oobValue, oobElement, settleInfo);
+                            oobElement.remove();
+                        });
+
                         source.parentElement.replaceChild(targetClone, source);
                         target.parentElement.replaceChild(sourceClone, target);
 
-                        return false;
+                        return;
                     }
 
                     var sourceNodes = [];
@@ -484,23 +499,23 @@
                     target.content ? target.content.replaceChildren() : target.replaceChildren();
 
                     forEach(sourceNodes, function(child) {
+                        if (child.tagName && child.hasAttribute('hx-swap-oob')) return;
                         target.content ? target.content.append(child) : target.append(child);
                     });
 
                     forEach(targetNodes, function(child) {
                         source.content ? source.content.append(child) : source.append(child);
                     });
-
                 },
-                after: function(source, target, customSwapSpec) {
+                after: function(source, target, customSwapSpec, settleInfo) {
                     // *crickets*
                 }
             },
             move: {
-                before: function(source, target, customSwapSpec) {
+                before: function(source, target, customSwapSpec, settleInfo) {
                     return true;
                 },
-                after: function(source, target, customSwapSpec) {
+                after: function(source, target, customSwapSpec, settleInfo) {
                     if (target.content) {
                         if (customSwapSpec.swapTarget == 'innerHTML') target.content.replaceChildren();
                         var sourceNodes = source.content ? source.content.childNodes : source.childNodes;
@@ -534,18 +549,12 @@
             htmx.removeClass(elt, this.config.swappingClass + '-' + role);
             htmx.removeClass(elt, this.config.swappingClass + '-' + swapStyle);
         },
-    
-        triggerSwapBeforeEvents: function(elt, swapStyle) {
+
+        triggerSwapEvents: function(elt, when, role, swapStyle) {
             if (!elt) return;
-            this.internalAPI.triggerEvent(elt, this.config.eventsPrefix + 'Before');
-            if (swapStyle != extName) this.internalAPI.triggerEvent(elt, this.config.eventsPrefix + 'Before' + capitalize(swapStyle));
-        },
-    
-        triggerSwapAfterEvents: function(elt, swapStyle) {
-            if (!elt) return;
-            this.internalAPI.triggerEvent(elt, this.config.eventsPrefix + 'After');
-            if (swapStyle != extName) this.internalAPI.triggerEvent(elt, this.config.eventsPrefix + 'After' + capitalize(swapStyle));
-            htmx.process(elt);
+            this.internalAPI.triggerEvent(elt, this.config.eventsPrefix + capitalize(when) + capitalize(role));
+            if (swapStyle != extName) this.internalAPI.triggerEvent(elt, this.config.eventsPrefix + capitalize(when) + capitalize(role) + capitalize(swapStyle));
+            if (when == 'after') htmx.process(elt);
         },
     });
 

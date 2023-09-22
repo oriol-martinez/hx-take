@@ -142,6 +142,7 @@
 </head>
 <body hx-ext="take">
     <h1>hx-take playground</h1>
+    <div id="oob-test"></div>
     <div id="selects">
         <div>
             <label for="hx-take">Take this element (hx-take)</label>
@@ -243,6 +244,9 @@
             <p>I am a paragraph of right</p>
         </div>
         <template id="tpl-a">
+            <div id="oob-test" hx-swap-oob="true">
+                <p>OOB!</p>
+            </div>
             <p>I am a paragraph of tpl-a</p>
             <div id="tpl-a-content">
                 <p>I am a paragraph of tpl-a-content</p>
